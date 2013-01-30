@@ -128,9 +128,9 @@ def play():
             print '\n AI place at %s \n' % pos
         else:
             move = 0
-            while not (isinstance(move, int) and move in range(1, 10)):
+            while not isillegal(move):
                 try:
-                    move = int(raw_input('\n enter: your spot(1-9) for %s  -> '% player))  
+                    move = int(raw_input('\n enter: to spot(1-9) for %s  -> '% player))  
                 except ValueError:
                     continue
 
@@ -146,5 +146,11 @@ def play():
             print 'Tie'
             break 
         turn = other[turn]
+
+def isillegal(move):
+    i, j = divmod(move-1, 3)   # 1-> [0, 0], 2 -> [0, 1]
+    board[i][j]     
+    if isinstance(move, int) and move in range(1, 10):
+        return isempty(board[i][j])    
 
      
