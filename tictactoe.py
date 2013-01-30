@@ -93,7 +93,7 @@ def gotfork(board, role, i, j):
     b = newboard(board, i, j, role)
     tb = transpose(b)
     if b[i].count(role) == 2 and tb[i].count(role) == 2:
-        return b[i].count(other[role]) == 0 and b[i].count(other[role]) == 0
+        return (b[i].count(other[role]) == 0 and tb[i].count(other[role]) == 0)
 
 # C = corners = [[0, 0], [2, 2], [0, 2], [2, 0]]    
 def gotcorner(board, role, i=None, j=None):
@@ -158,3 +158,4 @@ def isillegal(move, board):
     return isempty(sq)    
 
      
+
