@@ -128,7 +128,7 @@ def play():
             print '\n AI place at %s \n' % pos
         else:
             move = 0
-            while not isillegal(move):
+            while not isillegal(move, board):
                 try:
                     move = int(raw_input('\n enter: to spot(1-9) for %s  -> '% player))  
                 except ValueError:
@@ -147,10 +147,14 @@ def play():
             break 
         turn = other[turn]
 
-def isillegal(move):
+def isillegal(move, board):
+    if not (isinstance(move, int) and move in range(1, 10)):
+        return
     i, j = divmod(move-1, 3)   # 1-> [0, 0], 2 -> [0, 1]
-    board[i][j]     
-    if isinstance(move, int) and move in range(1, 10):
-        return isempty(board[i][j])    
+    try:
+        sq = board[i][j]     
+    except IndexError:
+        return False
+    return isempty(sq)    
 
      
