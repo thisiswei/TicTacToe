@@ -158,4 +158,4 @@ def isillegal(move, board):
     return isempty(sq)    
 
      
-
+play()
