@@ -18,14 +18,14 @@ numstr = ['1 2 3', '4 5 6', '7 8 9']
 N = map(str.split, numstr)     # [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']]
 
 center = [1, 1] 
-C = corners = [[0, 0], [2, 2], [0, 2], [2, 0]]    
+C = [[0, 0], [2, 2], [0, 2], [2, 0]]    #corners
 D = [[C[0], center, C[1]], [C[2], center, C[-1]]]  # diagnals [[0,0],[1,1],[2,2],] [[0,2],[1,1],[2,0]] 
 leftover = [[1, 2],[2, 1],[0, 1],[1, 0]]
 
 ocorners = dict((tuple(c1), c2)      #opposite corners
                  for c1, c2 in zip(C, [C[i] for i in [1, 0, 3, 2]]))
 
-allpos = list(itertools.product(R, R))
+ALLPOS = list(itertools.product(R, R))
 
 def aboard():
     return [['_', '_', '_'] for i in R]  
@@ -69,42 +69,40 @@ def aiplay(board, role):
         return pos                       # 3, 4) place/block @ forkplace( win two way)
     if isempty(board[1][1]): 
         return center                     # 5) 
-    corner = gotcorner(board, role)    
+    corner = checkboth(board, role, gotcorner, C, True)    
     if corner:
         return corner                      # 6, 7) place at opposite corner or just any corner
     for i, j in leftover:
         if isempty(board[i][j]):
             return i, j 
 
-def checkboth(board, role, function=gotwinner):
-    for i, j in allpos:
+def checkboth(board, role, function=gotwinner, candidates=ALLPOS, oneround=False):
+    for i, j in candidates:
         if isempty(board[i][j]):
             b = newboard(board, i, j, role)
             if function(b, role, i, j): 
                 return i, j
-    for i, j in allpos:
+        if oneround: break
+
+    for i, j in candidates:
         if isempty(board[i][j]):
             b = newboard(board, i, j, other[role])
             if function(b, role, i, j): 
                 return i, j 
 
-def gotfork(board, role, i, j):
-    if board[i][j] != '_' : return 
-    b = newboard(board, i, j, role)
-    tb = transpose(b)
-    if b[i].count(role) == 2 and tb[i].count(role) == 2:
-        return (b[i].count(other[role]) == 0 and tb[i].count(other[role]) == 0)
+def gotfork(board, role, i, j): 
+    tb = transpose(board)
+    if board[i].count(role) == 2 and tb[i].count(role) == 2:
+        return (board[i].count(other[role]) == 0 and tb[i].count(other[role]) == 0)
 
 # C = corners = [[0, 0], [2, 2], [0, 2], [2, 0]]    
-def gotcorner(board, role, i=None, j=None):
+def gotcorner(board, role, i, j):
     cors = []
-    for i, j in corners:
-        if isempty(board[i][j]):
-            x, y = ocorners[(i, j)]
-            if board[x][y] == other[role]:  # if corner opposite is opponent
-                return i, j
-            else: 
-                cors.append((i, j))
+    x, y = ocorners[(i, j)]
+    if board[x][y] == other[role]:  # if corner opposite is opponent
+        return i, j
+    else: 
+        cors.append((i, j))
     if not cors: return
     return cors[0]
     
@@ -141,11 +139,12 @@ def play():
         if over:
             print who[turn] + ' won'
             break
-        placed += 1
-        if placed == 9: 
+        placed += 1 
+        turn = other[turn]    
+        if placed >= 8 and turn==player: 
             print 'Tie'
             break 
-        turn = other[turn]
+        
 
 def isillegal(move, board):
     if not (isinstance(move, int) and move in range(1, 10)):
