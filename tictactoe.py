@@ -51,7 +51,7 @@ def gotwinner(board, role=None, i=None, j=None):
     return False
 
 def show(board):
-    print ('\n_________\n'.join(' | '.join([N[i][j] if isempty(sq) else sq 
+    print ('\n_________\n'.join('  |'.join([N[i][j] if isempty(sq) else sq 
                for j, sq in enumerate(row)]) 
                for i, row in enumerate(board)))   
 
@@ -82,7 +82,7 @@ def checkboth(board, role, function=gotwinner, candidates=ALLPOS, oneround=False
             b = newboard(board, i, j, role)
             if function(b, role, i, j): 
                 return i, j
-        if oneround: break
+    if oneround: return
 
     for i, j in candidates:
         if isempty(board[i][j]):
