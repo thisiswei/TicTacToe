@@ -15,15 +15,15 @@ import copy as c
 R = range(3)
 other = {'X':'O', 'O':'X'} 
 numstr = ['1 2 3', '4 5 6', '7 8 9'] 
-N = map(str.split, numstr)     # [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']]
+N = map(str.split, numstr)    
 
-center = [1, 1] 
-C = [[0, 0], [2, 2], [0, 2], [2, 0]]    #corners
-D = [[C[0], center, C[1]], [C[2], center, C[-1]]]  # diagnals [[0,0],[1,1],[2,2],] [[0,2],[1,1],[2,0]] 
-leftover = [[1, 2],[2, 1],[0, 1],[1, 0]]
+C = corners  = [(a, b) for a, b in itertools.product((0, 2), (0, 2))]
+D = diagnals = [[[0,0],[1,1],[2,2]], 
+                [[0,2],[1,1],[2,0]]]
 
-ocorners = dict((tuple(c1), c2)      #opposite corners
-                 for c1, c2 in zip(C, [C[i] for i in [1, 0, 3, 2]]))
+leftover = [(1, 2),(2, 1),(0, 1),(1, 0)]
+ocorners = dict((c1, c2)      
+                for c1, c2 in zip(C, C[::-1]))   #opposite corners   
 
 ALLPOS = list(itertools.product(R, R))
 
@@ -37,7 +37,7 @@ def transpose(board):
     return map(list, zip(*board))
 
 def diags(board):
-    ds = [board[i][j] for diag in D for [i, j] in diag]
+    ds = [board[i][j] for diag in D for i, j in diag]
     return [ds[:3], ds[3:]]
 
 def hvd(board):    #horizontal, vertical, diagonal
@@ -68,7 +68,7 @@ def aiplay(board, role):
     if pos:
         return pos                       # 3, 4) place/block @ forkplace( win two way)
     if isempty(board[1][1]): 
-        return center                     # 5) 
+        return 1, 1                     # 5) 
     corner = checkboth(board, role, gotcorner, C, True)    
     if corner:
         return corner                      # 6, 7) place at opposite corner or just any corner
@@ -113,32 +113,29 @@ def play():
         player = raw_input('choose x or o ? -->     ').upper()
     ai = other[player]
     turn = random.choice('XO')
-    if turn == player:
-        show(board)
-    over = False
     who = {player: 'You', ai: 'AI' }
     placed = 0
-    while not over:
+    show(board)  
+    while True: 
         if ai == turn:
-            i, j = aiplay(board, ai)
+            (i, j) = aiplay(board, ai)
             board[i][j] = ai
-            pos = i * 3 + 1 + j    # [0, 0] => 1 [0, 1] => 2   
-            print '\n AI place at %s \n' % pos
+            print '\n AI place at %s \n' % (i * 3 + 1 + j) # [0, 0] => 1 [0, 1] => 2   
         else:
             move = 0
             while not isillegal(move, board):
                 try:
                     move = int(raw_input('\n enter: to spot(1-9) for %s  -> '% player))  
                 except ValueError:
-                    continue
+                    continue 
 
             x, y = divmod(move-1, 3)   # 1-> [0, 0], 2 -> [0, 1]
             board[x][y] = player       
-        show(board)                       
-        over = gotwinner(board)
-        if over:
+        show(board) 
+        if gotwinner(board):
             print who[turn] + ' won'
             break
+            
         placed += 1 
         turn = other[turn]    
         if placed >= 8 and turn==player: 
